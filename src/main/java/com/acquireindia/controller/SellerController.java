@@ -24,7 +24,6 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/api/seller")
-@CrossOrigin(origins = "*", maxAge = 3600)
 @PreAuthorize("hasRole('SELLER') or hasRole('ADMIN')")
 public class SellerController {
 
