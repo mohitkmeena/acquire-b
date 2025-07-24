@@ -85,16 +85,17 @@ public class SecurityConfig {
     }
 
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    public UrlBasedCorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // ✅ Use allowedOriginPatterns instead of allowedOrigins when allowCredentials is true
-        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:5173")); // or your actual frontend domain
+     
+        configuration.setAllowedOriginPatterns(Arrays.asList("http://localhost:5173","https://5173-firebase-acquire-f-1753295047182.cluster-44kx2eiocbhe2tyk3zoyo3ryuo.cloudworkstations.dev")); // or your actual frontend domain
 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
-
+        
+        configuration.setMaxAge(3600L); // 1 hour
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
         return source;

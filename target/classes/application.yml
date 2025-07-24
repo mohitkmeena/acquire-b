@@ -6,9 +6,9 @@ spring:
     name: acquire-india
   
   datasource:
-    url: jdbc:mysql://localhost:3306/acquire_india?createDatabaseIfNotExist=true&allowPublicKeyRetrieval=true&useSSL=false&serverTimezone=UTC
-    username: root
-    password: root
+    url: jdbc:mysql://avnadmin:AVNS_QkxrsgID_9uvJBD0CMP@mysql-3f507a34-mohitmeenag2005-29a2.f.aivencloud.com:10189/acquire?ssl-mode=REQUIRED
+    username: avnadmin
+    password: AVNS_QkxrsgID_9uvJBD0CMP
     driver-class-name: com.mysql.cj.jdbc.Driver
   
   jpa:
@@ -38,8 +38,8 @@ spring:
             enable: true
 
 jwt:
-  secret: ${JWT_SECRET:mySecretKey123456789012345678901234567890}
-  expiration: 86400000 # 24 hours
+  secret: H+uZl6TxrR1Zn24OqjAxgV0jz+V9DkEPe7XYgI6uZJ4=
+  expiration: 86400000
 
 razorpay:
   key-id: ${RAZORPAY_KEY_ID:your-razorpay-key}
