@@ -4,7 +4,9 @@ import com.acquireindia.dto.ApiResponse;
 import com.acquireindia.model.Listing;
 import com.acquireindia.model.User;
 import com.acquireindia.service.ListingService;
+import com.acquireindia.service.ListingViewService;
 import com.acquireindia.service.UserService;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -30,6 +32,9 @@ public class ListingController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private ListingViewService listingViewService;
 
     // Public endpoints - no authentication required
     @GetMapping("/public/listings")
@@ -68,10 +73,29 @@ public class ListingController {
     }
 
     @GetMapping("/public/listings/{id}")
-    public ResponseEntity<ApiResponse<Listing>> getPublicListingById(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<Listing>> getPublicListingById(@PathVariable Long id,
+                                                                   HttpServletRequest request,
+                                                                   Authentication authentication) {
         try {
             Listing listing = listingService.findById(id)
                     .orElseThrow(() -> new RuntimeException("Listing not found"));
+
+            // Track the view
+            String ipAddress = getClientIpAddress(request);
+            String userAgent = request.getHeader("User-Agent");
+
+            // Get current user if authenticated
+            User viewer = null;
+            if (authentication != null && authentication.isAuthenticated()) {
+                viewer = userService.findByEmail(authentication.getName()).orElse(null);
+            }
+
+            if (viewer != null) {
+                listingViewService.trackView(listing, viewer, ipAddress, userAgent);
+            } else {
+                String sessionId = request.getSession().getId();
+                listingViewService.trackAnonymousView(listing, ipAddress, userAgent, sessionId);
+            }
 
             return ResponseEntity.ok(ApiResponse.success("Listing retrieved successfully", listing));
         } catch (Exception e) {
@@ -219,5 +243,22 @@ public class ListingController {
             case "revenue-low" -> Sort.by("revenue").ascending();
             default -> Sort.by("createdAt").descending(); // newest
         };
+    }
+
+    /**
+     * Helper method to get client IP address
+     */
+    private String getClientIpAddress(HttpServletRequest request) {
+        String xForwardedFor = request.getHeader("X-Forwarded-For");
+        if (xForwardedFor != null && !xForwardedFor.isEmpty() && !"unknown".equalsIgnoreCase(xForwardedFor)) {
+            return xForwardedFor.split(",")[0];
+        }
+        
+        String xRealIp = request.getHeader("X-Real-IP");
+        if (xRealIp != null && !xRealIp.isEmpty() && !"unknown".equalsIgnoreCase(xRealIp)) {
+            return xRealIp;
+        }
+        
+        return request.getRemoteAddr();
     }
 }

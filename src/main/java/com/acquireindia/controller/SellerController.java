@@ -3,11 +3,11 @@ package com.acquireindia.controller;
 import com.acquireindia.dto.ApiResponse;
 import com.acquireindia.model.Offer;
 import com.acquireindia.model.User;
-import com.acquireindia.service.ChatService;
 import com.acquireindia.service.ListingService;
+import com.acquireindia.service.ListingViewService;
 import com.acquireindia.service.OfferService;
 import com.acquireindia.service.UserService;
-import jakarta.validation.Valid;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -37,7 +37,7 @@ public class SellerController {
     private UserService userService;
 
     @Autowired
-    private ChatService chatService;
+    private ListingViewService listingViewService;
 
     @GetMapping("/offers")
     public ResponseEntity<ApiResponse<Map<String, Object>>> getOffersForMyListings(
@@ -129,7 +129,7 @@ public class SellerController {
             Map<String, Object> stats = new HashMap<>();
             stats.put("totalListings", listingService.countBySeller(seller));
             stats.put("activeListings", listingService.findBySeller(seller).size());
-            stats.put("totalViews", 0); // TODO: Implement view tracking
+            stats.put("totalViews", listingViewService.getTotalViewsForSeller(seller));
             stats.put("totalOffers", offerService.countBySeller(seller));
             dashboard.put("stats", stats);
 
@@ -167,10 +167,15 @@ public class SellerController {
 
             Map<String, Object> analytics = new HashMap<>();
 
-            // Views (placeholder - implement view tracking)
+            // Views
             Map<String, Object> views = new HashMap<>();
-            views.put("total", 0);
-            views.put("daily", List.of());
+            Long totalViews = listingViewService.getTotalViews(listing);
+            Long uniqueViewers = listingViewService.getUniqueViewers(listing);
+            List<Object[]> dailyViews = listingViewService.getDailyViewCounts(listing);
+            
+            views.put("total", totalViews);
+            views.put("uniqueViewers", uniqueViewers);
+            views.put("daily", dailyViews);
             analytics.put("views", views);
 
             // Offers
