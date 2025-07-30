@@ -37,6 +37,15 @@ spring:
           starttls:
             enable: true
 
+# CORS Configuration
+cors:
+  allowed-origins: http://localhost:5173,http://localhost:3000,https://5173-firebase-acquire-f-1753295047182.cluster-44kx2eiocbhe2tyk3zoyo3ryuo.cloudworkstations.dev
+  allowed-methods: GET,POST,PUT,DELETE,OPTIONS,PATCH
+  allowed-headers: "*"
+  exposed-headers: Authorization,Content-Type,X-Requested-With,Accept,Origin,Access-Control-Request-Method,Access-Control-Request-Headers
+  allow-credentials: true
+  max-age: 3600
+
 jwt:
   secret: H+uZl6TxrR1Zn24OqjAxgV0jz+V9DkEPe7XYgI6uZJ4=
   expiration: 86400000
